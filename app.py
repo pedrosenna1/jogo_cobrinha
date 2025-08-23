@@ -2,6 +2,8 @@ import time
 import curses
 import random
 
+ 
+
 def game_loop(window):
     # Setup inicial
     curses.curs_set(0)
@@ -15,8 +17,8 @@ def game_loop(window):
 
     fruit = get_new_fruit(window=window)
     current_direction = curses.KEY_RIGHT
-    timeout = 1000   
-    
+    timeout = 500   
+    contagem_fruits = 0
     while True:
         draw_screen(window=window)
         draw_snake(personagem=personagem,window=window)
@@ -31,11 +33,12 @@ def game_loop(window):
         if personagem[0] in personagem[1:]:
             break
         if snake_hit_border(personagem=personagem,window = window):
-            return
+            break
         if snake_hit_fruit(personagem=personagem,fruit=fruit):
             snake_add(personagem=personagem)
+            contagem_fruits = contagem_fruits + 1
             if timeout > 200:
-                timeout = timeout - 100
+                timeout = timeout - 50
             elif timeout > 100:
                 timeout = timeout - 20
             else:
@@ -43,6 +46,21 @@ def game_loop(window):
             fruit = get_new_fruit(window=window)
         
         current_direction = direction
+    
+    finish_game(contagem_fruits,window=window)
+
+
+def finish_game(contagem_fruits,window):
+        height, width = window.getmaxyx()
+        s = f'Você perdeu! Coletou {contagem_fruits} frutas!'
+        y = int(height / 2)
+        x = int((width - len(s)) / 2)
+        window.addstr(y,x,s)
+        window.refresh()
+        time.sleep(4)
+    
+    
+      
 
 def direction_is_opposite(direction,current_direction):
         match direction:
@@ -139,6 +157,8 @@ def actor_hit_border(actor,window):
     else:
         return False
     
+
 if __name__ == "__main__":
     curses.wrapper(game_loop)
     print('Perdeu!')
+    
